@@ -24,11 +24,14 @@ public class AkkaMainSystem extends AbstractBehavior<AkkaMainSystem.Create> {
 
     private Behavior<Create> onCreate(Create command) {
         //#create-actors
-        ActorRef<ExampleActor.Message> a = this.getContext().spawn(ExampleActor.create("Alice"), "alice");
-        ActorRef<ExampleTimerActor.Message> b = this.getContext().spawn(ExampleTimerActor.create(), "timeractor");
+        ActorRef<Library.Message> library = this.getContext().spawn(Library.create("library"), "library");
+        ActorRef<QueueManager.Message> queueManager = this.getContext().spawn(QueueManager.create("QueueManager"), "queueManager");
+        ActorRef<Spawner.Message> spawner = this.getContext().spawn(Spawner.create("Spawner"), "spawner");
+        ActorRef<PlaybackClient.Message> playbackClient = this.getContext().spawn(PlaybackClient.create(), "playbackClient");
         //#create-actors
 
-        a.tell(new ExampleActor.ExampleMessage(this.getContext().getSelf(),"Test123"));
+
+        // library.tell(new ExampleActor.ExampleMessage(this.getContext().getSelf(),"Test123"));
         return this;
     }
 }

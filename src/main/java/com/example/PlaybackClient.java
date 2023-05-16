@@ -10,7 +10,7 @@ import akka.actor.typed.javadsl.Receive;
 import java.time.Duration;
 
 
-public class ExampleTimerActor extends AbstractBehavior<ExampleTimerActor.Message> {
+public class PlaybackClient extends AbstractBehavior<PlaybackClient.Message> {
 
     public interface Message {};
 
@@ -18,12 +18,12 @@ public class ExampleTimerActor extends AbstractBehavior<ExampleTimerActor.Messag
     public record ExampleMessage(String someString) implements Message {  }
 
     public static Behavior<Message> create() {
-        return Behaviors.setup(context -> Behaviors.withTimers(timers -> new ExampleTimerActor(context, timers)));
+        return Behaviors.setup(context -> Behaviors.withTimers(timers -> new PlaybackClient(context, timers)));
     }
 
-    private final TimerScheduler<ExampleTimerActor.Message> timers;
+    private final TimerScheduler<PlaybackClient.Message> timers;
 
-    private ExampleTimerActor(ActorContext<Message> context, TimerScheduler<ExampleTimerActor.Message> timers) {
+    private PlaybackClient(ActorContext<Message> context, TimerScheduler<PlaybackClient.Message> timers) {
         super(context);
         this.timers = timers;
 
