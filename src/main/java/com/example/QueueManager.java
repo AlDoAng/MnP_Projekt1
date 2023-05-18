@@ -8,21 +8,20 @@ import akka.actor.typed.javadsl.Behaviors;
 import akka.actor.typed.javadsl.Receive;
 
 import java.util.HashMap;
-import java.util.List;
 
 public class QueueManager extends AbstractBehavior<QueueManager.Message> {
 
     public interface Message {};
 
-    public record ReadyMessage(ActorRef<AkkaMainSystem.Create> replyTo) implements Message {  }
-    public record AddMessage(ActorRef<AkkaMainSystem.Create> replyTo, Song songToAdd) implements Message {  }
+    public record ReadyMessage(ActorRef<PlaybackClient.Message> replyTo) implements Message {  }
+    public record AddMessage(ActorRef<Singer.Message> replyTo, Song songToAdd) implements Message {  }
 
     public static Behavior<Message> create(/*List<Song> songList*/) {
         return Behaviors.setup(context -> new QueueManager(context/*, songList*/));
     }
 
     //private final List<Song> songList;
-    private HashMap<Song, ActorRef<AkkaMainSystem.Create>> songSingerList;
+    private HashMap<Song, ActorRef<Singer.Message>> songSingerList;
 
     private QueueManager(ActorContext<Message> context/*, List<Song> songList*/) {
         super(context);
