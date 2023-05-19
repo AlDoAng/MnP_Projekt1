@@ -16,16 +16,15 @@ public class QueueManager extends AbstractBehavior<QueueManager.Message> {
     public record ReadyMessage(ActorRef<PlaybackClient.Message> replyTo) implements Message {  }
     public record AddMessage(ActorRef<Singer.Message> replyTo, Song songToAdd) implements Message {  }
 
-    public static Behavior<Message> create(/*List<Song> songList*/) {
-        return Behaviors.setup(context -> new QueueManager(context/*, songList*/));
+    public static Behavior<Message> create() {
+        return Behaviors.setup(QueueManager::new);
     }
 
-    //private final List<Song> songList;
     private HashMap<Song, ActorRef<Singer.Message>> songSingerList;
 
-    private QueueManager(ActorContext<Message> context/*, List<Song> songList*/) {
+    private QueueManager(ActorContext<Message> context) {
         super(context);
-       // this.songSingerList = songList;
+        songSingerList = new HashMap<>();
     }
 
     @Override
@@ -37,6 +36,11 @@ public class QueueManager extends AbstractBehavior<QueueManager.Message> {
     }
 
     private Behavior<Message> onReadyMessage(ReadyMessage msg) {
+        if(!songSingerList.isEmpty()) {
+            Song song = songSingerList.keySet().iterator().next();
+            ActorRef<Singer.Message> singerRef = songSingerList.remove(song);
+            msg.replyTo.tell(new PlaybackClient.Play(singerRef, song, this.getContext().getSelf()));
+        }
         return this;
     }
 
