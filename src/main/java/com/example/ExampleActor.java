@@ -3,12 +3,13 @@ package com.example;
 import akka.actor.typed.ActorRef;
 import akka.actor.typed.Behavior;
 import akka.actor.typed.javadsl.*;
+import scala.math.Equiv;
 
 public class ExampleActor extends AbstractBehavior<ExampleActor.Message> {
 
-    public interface Message {};
+    public interface Message {}
 
-    public record ExampleMessage(ActorRef<AkkaMainSystem.Create> someReference, String someString) implements Message {  }
+    public record ExampleMessage<String>(ActorRef<AkkaMainSystem.Create> someReference, String someString) implements Message {  }
 
     public static Behavior<Message> create(String name) {
         return Behaviors.setup(context -> new ExampleActor(context, name));

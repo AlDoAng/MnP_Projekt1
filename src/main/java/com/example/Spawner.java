@@ -1,7 +1,9 @@
 package com.example;
 
+import akka.actor.typed.ActorRef;
 import akka.actor.typed.Behavior;
 import akka.actor.typed.javadsl.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 import java.time.Duration;
 
@@ -11,31 +13,50 @@ public class Spawner extends AbstractBehavior<Spawner.Message> {
     public interface Message {};
 
 
-    public record ExampleMessage(String someString) implements Message {  }
+    public record GenNewSinger(int time) implements Message {  }
 
-    public static Behavior<Message> create() {
-        return Behaviors.setup(context -> Behaviors.withTimers(timers -> new Spawner(context, timers)));
+    public static Behavior<Message> create(ActorRef<Library.Message> library, ActorRef<QueueManager.Message> queueManager) {
+        return Behaviors.setup(context -> Behaviors.withTimers(timers -> new Spawner(context, timers, library, queueManager)));
     }
 
     private final TimerScheduler<Message> timers;
-
-    private Spawner(ActorContext<Message> context, TimerScheduler<Message> timers) {
+    private final ActorRef<Library.Message> libraryActorRef;
+    private final ActorRef<QueueManager.Message> queueManagerActorRef;
+    /*
+    * Ablauf:
+    * 1) In constructor wird die erste Nachricht an sich gesendet nach einem zufalligen Timer.
+    * 2) Beim Erhalten der Nachricht wird ein Singer generiert.
+    * 3) Danach wird direkt ein neuer Timer eingesetzt und die Schritte wiederholen sich.
+    *
+    * */
+    private Spawner(ActorContext<Message> context, TimerScheduler<Message> timers, ActorRef<Library.Message> library, ActorRef<QueueManager.Message> queueManager) {
         super(context);
         this.timers = timers;
-
-        Message msg = new ExampleMessage("test123");
-        this.timers.startSingleTimer(msg, msg, Duration.ofSeconds(10));
+        this.libraryActorRef = library;
+        this.queueManagerActorRef = queueManager;
+        this.doGenNewSinger();
     }
+
+    // Funktion für die Generierung der Singers mit Timer
+    private void doGenNewSinger() {
+        int randomTime = ThreadLocalRandom.current().nextInt(2, 12 + 1);
+        Message msg = new GenNewSinger(randomTime);
+        this.timers.startSingleTimer(msg, Duration.ofSeconds(randomTime));
+    }
+
 
     @Override
     public Receive<Message> createReceive() {
         return newReceiveBuilder()
-                .onMessage(ExampleMessage.class, this::onExampleMessage)
+                .onMessage(GenNewSinger.class, this::onGenNewSinger)
                 .build();
     }
 
-    private Behavior<Message> onExampleMessage(ExampleMessage msg) {
-        getContext().getLog().info("I have send myself this message after 10 Seconds: {}", msg.someString);
+    private Behavior<Message> onGenNewSinger(GenNewSinger msg) {
+        // TODO: Replace ExampleActor with Singer.
+        this.getContext().spawnAnonymous(ExampleActor.create("hi"));
+        getContext().getLog().info("A singer created after {} seconds", msg.time);
+        this.doGenNewSinger();
         return this;
     }
 }
