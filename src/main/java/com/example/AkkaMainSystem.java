@@ -47,8 +47,6 @@ public class AkkaMainSystem extends AbstractBehavior<AkkaMainSystem.Create> {
         ActorRef<Spawner.Message> spawner = this.getContext().spawn(Spawner.create(library,queueManager), "spawner");
         ActorRef<PlaybackClient.Message> playbackClient = this.getContext().spawn(PlaybackClient.create(), "playbackClient");
         //#create-actors
-
-
         // library.tell(new ExampleActor.ExampleMessage(this.getContext().getSelf(),"Test123"));
         return this;
     }

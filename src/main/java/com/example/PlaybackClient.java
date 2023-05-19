@@ -86,7 +86,7 @@ public class PlaybackClient extends AbstractBehavior<PlaybackClient.Message> {
     * 4) sende Ready-Nachricht an dem QueueManager
     */
     private Behavior<Message> onPlay(Play msg){
-        msg.replyTo.tell(new Singer.StartSingingMessage(msg.songToPlay));
+        msg.replyTo.tell(new Singer.StartSingingMessage(this.getContext().getSelf(), msg.songToPlay)); // TODO: quick fix, must be checked
         this.timers.startSingleTimer(sendClockStarted.INSTANCE, Duration.ofSeconds(msg.songToPlay.getDuration()));
         this.getContext().getLog().info("PlaybackClient played " + msg.songToPlay.getTitle() + ": Done");
         msg.msgFrom.tell(new QueueManager.ReadyMessage(getContext().getSelf()));
