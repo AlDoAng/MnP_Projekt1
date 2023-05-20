@@ -11,7 +11,7 @@ import java.util.HashMap;
 
 public class QueueManager extends AbstractBehavior<QueueManager.Message> {
 
-    public interface Message {};
+    public interface Message {}
 
     public record ReadyMessage(ActorRef<PlaybackClient.Message> replyTo) implements Message {  }
     public record AddMessage(ActorRef<Singer.Message> replyTo, Song songToAdd) implements Message {  }
@@ -20,7 +20,7 @@ public class QueueManager extends AbstractBehavior<QueueManager.Message> {
         return Behaviors.setup(QueueManager::new);
     }
 
-    private HashMap<Song, ActorRef<Singer.Message>> songSingerList;
+    private HashMap<ActorRef<Singer.Message>, Song> songSingerList;
 
     private QueueManager(ActorContext<Message> context) {
         super(context);
@@ -37,15 +37,21 @@ public class QueueManager extends AbstractBehavior<QueueManager.Message> {
 
     private Behavior<Message> onReadyMessage(ReadyMessage msg) {
         if(!songSingerList.isEmpty()) {
-            Song song = songSingerList.keySet().iterator().next();
-            ActorRef<Singer.Message> singerRef = songSingerList.remove(song);
+            ActorRef<Singer.Message> singerRef = songSingerList.keySet().iterator().next();
+            Song song = songSingerList.remove(singerRef);
+           // Song song = songSingerList.keySet().iterator().next();
+           // ActorRef<Singer.Message> singerRef = songSingerList.remove(song);
+            getContext().getLog().info("Send PlaybackClient a song {}", song.getTitle());
             msg.replyTo.tell(new PlaybackClient.Play(singerRef, song, this.getContext().getSelf()));
-        }
+        }else{
+         // getContext().getLog().info("No song in songList");
+         }
         return this;
     }
 
     private Behavior<Message> onAddMessage(AddMessage msg) {
-        this.songSingerList.put(msg.songToAdd, msg.replyTo);
+        getContext().getLog().info("QueueManager added {} \n", msg.songToAdd.getTitle());
+        this.songSingerList.put(msg.replyTo, msg.songToAdd);
         return this;
     }
 }

@@ -15,7 +15,7 @@ public class AkkaMainSystem extends AbstractBehavior<AkkaMainSystem.Create> {
     Song songBB1 = new Song("Bad Bunny","Diles", 10);
     Song songES1 = new Song("Ed Sheeran","Perfect", 9);
     Song songTS1 = new Song("Taylor Swift","Love Story", 8);
-    private final List<Song> songList = new ArrayList<Song>();
+    private final List<Song> songList = new ArrayList<>();
 
 
     public static class Create {
@@ -42,10 +42,12 @@ public class AkkaMainSystem extends AbstractBehavior<AkkaMainSystem.Create> {
         songList.add(songBB1);
         songList.add(songES1);
         songList.add(songTS1);
+
         ActorRef<Library.Message> library = this.getContext().spawn(Library.create(songList), "library");
         ActorRef<QueueManager.Message> queueManager = this.getContext().spawn(QueueManager.create(), "queueManager");
         ActorRef<Spawner.Message> spawner = this.getContext().spawn(Spawner.create(library,queueManager), "spawner");
-        ActorRef<PlaybackClient.Message> playbackClient = this.getContext().spawn(PlaybackClient.create(), "playbackClient");
+        ActorRef<PlaybackClient.Message> playbackClient = this.getContext().spawn(PlaybackClient.create(queueManager), "playbackClient");
+
         //#create-actors
         // library.tell(new ExampleActor.ExampleMessage(this.getContext().getSelf(),"Test123"));
         return this;

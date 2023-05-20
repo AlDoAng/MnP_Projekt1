@@ -7,6 +7,7 @@ import akka.actor.typed.javadsl.AbstractBehavior;
 import akka.actor.typed.javadsl.ActorContext;
 import akka.actor.typed.javadsl.Behaviors;
 import akka.actor.typed.javadsl.Receive;
+import akka.dispatch.QueueBasedMessageQueue;
 
 import java.time.Duration;
 import java.util.Objects;
@@ -52,30 +53,47 @@ public class PlaybackClient extends AbstractBehavior<PlaybackClient.Message> {
         }
     }
 
-   public enum sendClockStarted implements Message { INSTANCE }
-
-    private final TimerScheduler<PlaybackClient.Message> timers;
-
-    public static Behavior<Message> create() {
-        return Behaviors.setup(context -> Behaviors.withTimers(timers -> new PlaybackClient(context, timers)));
+    public record SendPlayEnd(Play msg) implements Message {  }
+   // public record WaitAndReady(ActorRef<QueueManager.Message> replyTo) implements Message { }
+   // public record SendReadyAgain(ActorRef<QueueManager.Message> replyTo) implements Message { }
+    public static Behavior<Message> create(ActorRef<QueueManager.Message> queueManager) {
+        return Behaviors.setup(context -> Behaviors.withTimers(timers -> new PlaybackClient(context, timers, queueManager)));
     }
 
-    private PlaybackClient(ActorContext<Message> context,/*, TimerScheduler<PlaybackClient.Message> timers*/TimerScheduler<Message> timers) {
-        super(context);
-       // this.timers = timers;
-        this.timers = timers;
+    private final TimerScheduler<PlaybackClient.Message> timers;
+    private final ActorRef<QueueManager.Message> queueManager;
 
-        //Message msg = new ExampleMessage("test123");
-       // this.timers.startSingleTimer(msg, msg, Duration.ofSeconds(10));
+
+    private PlaybackClient(ActorContext<Message> context,TimerScheduler<Message> timers, ActorRef<QueueManager.Message> queueManager) {
+        super(context);
+        this.timers = timers;
+        this.queueManager = queueManager;
+
+        //  this.queueManager.tell(new QueueManager.ReadyMessage(this.getContext().getSelf()));
+        getContext().getLog().info("PlaybackClient is created");
     }
 
     @Override
     public Receive<Message> createReceive() {
-        return newReceiveBuilder().onMessage(Play.class, this::onPlay).build();
+        return newReceiveBuilder()
+                .onMessage(Play.class, this::onPlay)
+                .onMessage(SendPlayEnd.class, this::onSendPlayEnd)
+                /*.onMessage(WaitAndReady.class, this::onWaitAndReady)
+                .onMessage(SendReadyAgain.class, this::onSendReadyAgain)
+                */
+
+                .build();
+
     }
 
-    /*private Behavior<Message> onExampleMessage(ExampleMessage msg) {
-        getContext().getLog().info("I have send myself this message after 10 Seconds: {}", msg.someString);
+
+    /*private Behavior<Message> onWaitAndReady(WaitAndReady msg) {
+        this.timers.startSingleTimer(new SendReadyAgain(msg.replyTo), Duration.ofSeconds(12));
+        return this;
+    }
+
+    private Behavior<Message> onSendReadyAgain(SendReadyAgain msg){
+        this.queueManager.tell(new QueueManager.ReadyMessage(this.getContext().getSelf()));
         return this;
     }*/
 
@@ -87,9 +105,20 @@ public class PlaybackClient extends AbstractBehavior<PlaybackClient.Message> {
     */
     private Behavior<Message> onPlay(Play msg){
         msg.replyTo.tell(new Singer.StartSingingMessage(this.getContext().getSelf(), msg.songToPlay)); // TODO: quick fix, must be checked
-        this.timers.startSingleTimer(sendClockStarted.INSTANCE, Duration.ofSeconds(msg.songToPlay.getDuration()));
-        this.getContext().getLog().info("PlaybackClient played " + msg.songToPlay.getTitle() + ": Done");
-        msg.msgFrom.tell(new QueueManager.ReadyMessage(getContext().getSelf()));
+        this.timers.startSingleTimer(new SendPlayEnd(msg),
+                Duration.ofSeconds(msg.songToPlay.getDuration()));
+
+        return this;
+    }
+
+    private Behavior<Message> onSendPlayEnd(SendPlayEnd sendPlayEndMsg){
+        sendPlayEndMsg.msg.replyTo.tell(
+                new Singer.StartSingingMessage(
+                        this.getContext().getSelf(), sendPlayEndMsg.msg.songToPlay
+                )
+        );
+        this.getContext().getLog().info("PlaybackClient played " + sendPlayEndMsg.msg.songToPlay.getTitle() + ": Done");
+        sendPlayEndMsg.msg.msgFrom.tell(new QueueManager.ReadyMessage(getContext().getSelf()));
         return this;
     }
 }

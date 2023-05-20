@@ -10,7 +10,7 @@ import java.time.Duration;
 
 public class Spawner extends AbstractBehavior<Spawner.Message> {
 
-    public interface Message {};
+    public interface Message {}
 
 
     public record GenNewSinger(int time) implements Message {  }
@@ -54,7 +54,8 @@ public class Spawner extends AbstractBehavior<Spawner.Message> {
 
     private Behavior<Message> onGenNewSinger(GenNewSinger msg) {
         // TODO: Replace ExampleActor with Singer.
-        this.getContext().spawnAnonymous(ExampleActor.create("hi"));
+      //  this.getContext().spawnAnonymous(ExampleActor.create("hi"));
+        this.getContext().spawnAnonymous(Singer.create(libraryActorRef, queueManagerActorRef));
         getContext().getLog().info("A singer created after {} seconds", msg.time);
         this.doGenNewSinger();
         return this;
