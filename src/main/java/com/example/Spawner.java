@@ -7,7 +7,13 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import java.time.Duration;
 
-
+/*
+ * Aktor: Spawner
+ * 1) In constructor wird die erste Nachricht an sich gesendet nach einem zufalligen Timer.
+ * 2) Beim Erhalten der Nachricht wird ein Singer generiert.
+ * 3) Danach wird direkt ein neuer Timer eingesetzt und die Schritte wiederholen sich.
+ *
+ * */
 public class Spawner extends AbstractBehavior<Spawner.Message> {
 
     public interface Message {}
@@ -24,13 +30,8 @@ public class Spawner extends AbstractBehavior<Spawner.Message> {
     private final ActorRef<QueueManager.Message> queueManagerActorRef;
 
     int i;
-    /*
-    * Ablauf:
-    * 1) In constructor wird die erste Nachricht an sich gesendet nach einem zufalligen Timer.
-    * 2) Beim Erhalten der Nachricht wird ein Singer generiert.
-    * 3) Danach wird direkt ein neuer Timer eingesetzt und die Schritte wiederholen sich.
-    *
-    * */
+
+    // 1) Hier wird die erste Nachricht an sich gesendet nach einem zufalligen Timer.
     private Spawner(ActorContext<Message> context, TimerScheduler<Message> timers, ActorRef<Library.Message> library, ActorRef<QueueManager.Message> queueManager) {
         super(context);
         this.timers = timers;
@@ -56,10 +57,13 @@ public class Spawner extends AbstractBehavior<Spawner.Message> {
                 .build();
     }
 
+    // 2) Beim Erhalten der Nachricht wird ein Singer generiert.
     private Behavior<Message> onGenNewSinger(GenNewSinger msg) {
         this.getContext().spawn(Singer.create(libraryActorRef, queueManagerActorRef), Integer.toString(this.i));
         getContext().getLog().info("Singer number {} created after {} seconds", this.i, msg.time);
         this.doGenNewSinger();
         return this;
     }
+
+    // 3) Danach wird direkt ein neuer Timer eingesetzt und die Schritte wiederholen sich.
 }
