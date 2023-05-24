@@ -53,7 +53,7 @@ public class QueueManager extends AbstractBehavior<QueueManager.Message> {
             playbackClient.tell(new PlaybackClient.IsPlaying(this.getContext().getSelf(), msg.songToAdd, msg.replyTo));
         }else{
             songSingerList.put(msg.replyTo,msg.songToAdd);
-            getContext().getLog().info("'{}': wurde der Warteschlange hinzugefügt", msg.songToAdd.getTitle());
+            getContext().getLog().info("'{}': is added to the waitlist", msg.songToAdd.getTitle());
         }
         return this;
     }
@@ -61,11 +61,11 @@ public class QueueManager extends AbstractBehavior<QueueManager.Message> {
     private Behavior<Message> onClientIsPlaying(ClientIsPlaying msg){
         if (!msg.isPlaying){
             playbackClient.tell(new PlaybackClient.Play(msg.replyToSinger, msg.song ,getContext().getSelf()));
-            getContext().getLog().info("'{}': wurde direkt gespielt", msg.song.getTitle());
+            getContext().getLog().info("'{}': is played directly", msg.song.getTitle());
         }
         else {
             songSingerList.put(msg.replyToSinger, msg.song);
-            getContext().getLog().info("'{}': wurde der Warteschlange hinzugefügt", msg.song.getTitle());
+            getContext().getLog().info("'{}': is added to the waitlist", msg.song.getTitle());
         }
         return this;
     }

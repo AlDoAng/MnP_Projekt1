@@ -77,7 +77,7 @@ public class Singer extends AbstractBehavior<Singer.Message> {
     }
 
     private Behavior<Message> onStartSingingMessage(StartSingingMessage msg) {
-        getContext().getLog().info("Start singing: " + msg.songToSing.getArtist()+
+        getContext().getLog().info("Starts singing: " + msg.songToSing.getArtist()+
                 " - "+msg.songToSing.getTitle()+" for "+msg.songToSing.getDuration()+" seconds");
         return this;
     }
