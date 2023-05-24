@@ -10,7 +10,7 @@ import java.time.Duration;
 
 public class Spawner extends AbstractBehavior<Spawner.Message> {
 
-    public interface Message {};
+    public interface Message {}
 
 
     public record GenNewSinger(int time) implements Message {  }
@@ -22,6 +22,8 @@ public class Spawner extends AbstractBehavior<Spawner.Message> {
     private final TimerScheduler<Message> timers;
     private final ActorRef<Library.Message> libraryActorRef;
     private final ActorRef<QueueManager.Message> queueManagerActorRef;
+
+    int i;
     /*
     * Ablauf:
     * 1) In constructor wird die erste Nachricht an sich gesendet nach einem zufalligen Timer.
@@ -34,11 +36,13 @@ public class Spawner extends AbstractBehavior<Spawner.Message> {
         this.timers = timers;
         this.libraryActorRef = library;
         this.queueManagerActorRef = queueManager;
+        this.i = 0;
         this.doGenNewSinger();
     }
 
     // Funktion für die Generierung der Singers mit Timer
     private void doGenNewSinger() {
+        this.i += 1;
         int randomTime = ThreadLocalRandom.current().nextInt(2, 12 + 1);
         Message msg = new GenNewSinger(randomTime);
         this.timers.startSingleTimer(msg, Duration.ofSeconds(randomTime));
@@ -53,9 +57,8 @@ public class Spawner extends AbstractBehavior<Spawner.Message> {
     }
 
     private Behavior<Message> onGenNewSinger(GenNewSinger msg) {
-        // TODO: Replace ExampleActor with Singer.
-        this.getContext().spawnAnonymous(ExampleActor.create("hi"));
-        getContext().getLog().info("A singer created after {} seconds", msg.time);
+        this.getContext().spawn(Singer.create(libraryActorRef, queueManagerActorRef), Integer.toString(this.i));
+        getContext().getLog().info("Singer number {} created after {} seconds", this.i, msg.time);
         this.doGenNewSinger();
         return this;
     }

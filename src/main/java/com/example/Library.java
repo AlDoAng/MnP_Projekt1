@@ -13,7 +13,7 @@ import java.util.List;
 
 public class Library extends AbstractBehavior<Library.Message> {
 
-    public interface Message {};
+    public interface Message {}
 
     public record ListArtists(ActorRef<Singer.Message> replyTo) implements Message {  }
     public record GetSongs(ActorRef<Singer.Message> replyTo, String choosenArtist) implements Message {  }
@@ -46,6 +46,7 @@ public class Library extends AbstractBehavior<Library.Message> {
         LinkedHashSet<String> artistlist = new LinkedHashSet<>();
         for (Song song: songList)
             artistlist.add(song.getArtist());
+       // getContext().getLog().info("Artist list sent to {}", msg.replyTo);
         msg.replyTo.tell(new Singer.ArtistsMessage(this.getContext().getSelf(), artistlist));
         return this;
     }
@@ -57,6 +58,7 @@ public class Library extends AbstractBehavior<Library.Message> {
                 songsofArtist.add(song);
             }
         }
+        //getContext().getLog().info("Artist {} choosen by {}", msg.choosenArtist, msg.replyTo);
         msg.replyTo.tell(new Singer.SongsMessage(this.getContext().getSelf(), songsofArtist));
         return this;
     }

@@ -14,7 +14,7 @@ import java.util.Random;
 
 public class Singer extends AbstractBehavior<Singer.Message> {
 
-    public interface Message {};
+    public interface Message {}
 
     public record ArtistsMessage(ActorRef<Library.Message> msgFrom, LinkedHashSet<String> artistList) implements Message {  }
     public record SongsMessage(ActorRef<Library.Message> msgFrom, ArrayList<Song> songsOfArtist) implements Message {  }
@@ -36,6 +36,7 @@ public class Singer extends AbstractBehavior<Singer.Message> {
 
     @Override
     public Receive<Message> createReceive() {
+        //getContext().getLog().info("Singer created");
         return newReceiveBuilder()
                 .onMessage(ArtistsMessage.class, this::onArtistsMessage)
                 .onMessage(SongsMessage.class, this::onSongsMessage)
@@ -44,7 +45,7 @@ public class Singer extends AbstractBehavior<Singer.Message> {
     }
 
     private Behavior<Message> onArtistsMessage(ArtistsMessage msg) {
-        Random random = new Random();
+        Random random = new Random(System.currentTimeMillis());
         String choosenArtist = null;
         int randomNumber = random.nextInt(msg.artistList.size());
         int count = 0;
@@ -60,7 +61,7 @@ public class Singer extends AbstractBehavior<Singer.Message> {
     }
 
     private Behavior<Message> onSongsMessage(SongsMessage msg) {
-        Random random = new Random();
+        Random random = new Random(System.currentTimeMillis());
         Song choosenSong = null;
         int randomNumber = random.nextInt(msg.songsOfArtist.size());
         int count = 0;
@@ -76,7 +77,7 @@ public class Singer extends AbstractBehavior<Singer.Message> {
     }
 
     private Behavior<Message> onStartSingingMessage(StartSingingMessage msg) {
-        getContext().getLog().info("Singer: Start singing: " + msg.songToSing.getArtist()+
+        getContext().getLog().info("Start singing: " + msg.songToSing.getArtist()+
                 " - "+msg.songToSing.getTitle()+" for "+msg.songToSing.getDuration()+" seconds");
         return this;
     }
