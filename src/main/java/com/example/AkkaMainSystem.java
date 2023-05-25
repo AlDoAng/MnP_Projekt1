@@ -7,6 +7,14 @@ import akka.actor.typed.javadsl.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/*
+ * Gruppe:
+ *  Alina Ignatova 226735,
+ *  Ha Phuong Ta 230655,
+ *  Valeriya Mikhalskaya 229099,
+ * //TODO: Janis
+ */
+
 // AkkaMainSystem: erstellt die Aktoren und startet alles
 public class AkkaMainSystem extends AbstractBehavior<AkkaMainSystem.Create> {
     private final List<Song> songList = new ArrayList<>();

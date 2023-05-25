@@ -11,7 +11,9 @@ import akka.actor.typed.javadsl.Receive;
 import java.time.Duration;
 import java.util.Objects;
 
-
+/*
+ * Actor: PlaybackClient
+ */
 public class PlaybackClient extends AbstractBehavior<PlaybackClient.Message> {
 
     public interface Message {}
