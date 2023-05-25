@@ -58,7 +58,7 @@ public class Library extends AbstractBehavior<Library.Message> {
 
     /*
      * onRecieve: onGetSongs
-     * - Sammele die Songs von dem ausgewählten Singer und schicke diese Songs wieder zum Singer
+     * - Hole die Songs von dem ausgewählten Singer und schicke diese Songs wieder zum Singer
      * */
 
     private Behavior<Message> onGetSongs(GetSongs msg) {

@@ -9,7 +9,7 @@ import java.time.Duration;
 
 /*
  * Aktor: Spawner
- * 1) In constructor wird die erste Nachricht an sich gesendet nach einem zufalligen Timer.
+ * 1) Im constructor wird die erste Nachricht an sich selbst gesendet nach einem zufalligen Timer.
  * 2) Beim Erhalten der Nachricht wird ein Singer generiert.
  * 3) Danach wird direkt ein neuer Timer eingesetzt und die Schritte wiederholen sich.
  *
@@ -31,7 +31,7 @@ public class Spawner extends AbstractBehavior<Spawner.Message> {
 
     int i;
 
-    // 1) Hier wird die erste Nachricht an sich gesendet nach einem zufalligen Timer.
+    // 1) Hier wird die erste Nachricht an sich selbst gesendet nach einem zufalligen Timer.
     private Spawner(ActorContext<Message> context, TimerScheduler<Message> timers, ActorRef<Library.Message> library, ActorRef<QueueManager.Message> queueManager) {
         super(context);
         this.timers = timers;
@@ -41,7 +41,7 @@ public class Spawner extends AbstractBehavior<Spawner.Message> {
         this.doGenNewSinger();
     }
 
-    // Funktion für die Generierung der Singers mit Timer
+    // Funktion für die Generierung der Singer mit Timer
     private void doGenNewSinger() {
         this.i += 1;
         int randomTime = ThreadLocalRandom.current().nextInt(2, 12 + 1);

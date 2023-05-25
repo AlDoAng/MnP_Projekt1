@@ -31,7 +31,7 @@ public class Singer extends AbstractBehavior<Singer.Message> {
     private final ActorRef<QueueManager.Message> queueManagerActorRef;
 
     /*
-     * Nachdem Singer erstellt wurde, sendet er eine Anfrage nach alle 'Artists' an die Library
+     * Nachdem Singer erstellt wurde, sendet er eine Anfrage nach allen 'Artists' an die Library
      */
     private Singer(ActorContext<Message> context, ActorRef<Library.Message> library, ActorRef<QueueManager.Message> queueManager) {
         super(context);
@@ -97,8 +97,9 @@ public class Singer extends AbstractBehavior<Singer.Message> {
      * gibt er folgenes aus:
      */
     private Behavior<Message> onStartSingingMessage(StartSingingMessage msg) {
-        getContext().getLog().info("Start singing: " + msg.songToSing.getArtist()+
-                " - "+msg.songToSing.getTitle()+" for "+msg.songToSing.getDuration()+" seconds");
+        /**getContext().getLog().info("Start singing: " + msg.songToSing.getArtist()+
+                " - "+msg.songToSing.getTitle()+" for "+msg.songToSing.getDuration()+" seconds");**/
+        getContext().getLog().info("Start singing: '{} - {}' for {} seconds", msg.songToSing.getArtist(), msg.songToSing.getTitle(), msg.songToSing.getDuration());
         return this;
     }
 }
