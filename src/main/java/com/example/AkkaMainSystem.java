@@ -7,6 +7,7 @@ import akka.actor.typed.javadsl.*;
 import java.util.ArrayList;
 import java.util.List;
 
+// AkkaMainSystem: erstellt die Aktoren und startet alles
 public class AkkaMainSystem extends AbstractBehavior<AkkaMainSystem.Create> {
     private final List<Song> songList = new ArrayList<>();
     public static class Create {
@@ -27,7 +28,7 @@ public class AkkaMainSystem extends AbstractBehavior<AkkaMainSystem.Create> {
 
     private Behavior<Create> onCreate(Create command) {
         fillSongList();
-        //#create-actors
+        //#create-actors: Library, PlaybackClient, QueueManager und Spawner werden erstellt
         ActorRef<Library.Message> library = this.getContext().spawn(Library.create(songList), "library");
         ActorRef<PlaybackClient.Message> playbackClient = this.getContext().spawn(PlaybackClient.create(), "playbackClient");
         ActorRef<QueueManager.Message> queueManager = this.getContext().spawn(QueueManager.create(playbackClient), "queueManager");
@@ -37,6 +38,7 @@ public class AkkaMainSystem extends AbstractBehavior<AkkaMainSystem.Create> {
         return this;
     }
 
+    // Songliste für die Library
     private void fillSongList() {
         Song songD1 = new Song("Drake","Forever", 12);
         Song songD2 = new Song("Drake","Headlines", 7);

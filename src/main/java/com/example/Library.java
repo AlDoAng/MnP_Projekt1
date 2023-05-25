@@ -11,6 +11,12 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 
+/*
+* Aktor: Library
+* - enthält Songliste und ArtistListe für Singer zu fetchen
+* - empfängt Anfrage von Singer und gibt die angefragte Liste zurück (Songliste ArtistListe)
+* */
+
 public class Library extends AbstractBehavior<Library.Message> {
 
     public interface Message {}
@@ -37,19 +43,23 @@ public class Library extends AbstractBehavior<Library.Message> {
                 .build();
     }
 
+    /*
+    * onRecieve: onListArtists
+    * - Erstelle ArtistListe aus der vorhandenen Songliste, dann schicke die Liste wieder zum Singer
+    * */
+
     private Behavior<Message> onListArtists(ListArtists msg) {
-//        List<String> artistList = new ArrayList<String>();
-//        for (Song song: songList) {
-//            artistList.add(song.getArtist());
-//        }
-//        return this;
         LinkedHashSet<String> artistlist = new LinkedHashSet<>();
         for (Song song: songList)
             artistlist.add(song.getArtist());
-       // getContext().getLog().info("Artist list sent to {}", msg.replyTo);
         msg.replyTo.tell(new Singer.ArtistsMessage(this.getContext().getSelf(), artistlist));
         return this;
     }
+
+    /*
+     * onRecieve: onGetSongs
+     * - Sammele die Songs von dem ausgewählten Singer und schicke diese Songs wieder zum Singer
+     * */
 
     private Behavior<Message> onGetSongs(GetSongs msg) {
         ArrayList<Song> songsofArtist = new ArrayList<>();
