@@ -53,7 +53,7 @@ public class QueueManager extends AbstractBehavior<QueueManager.Message> {
         if(!songSingerList.isEmpty()) {
             ActorRef<Singer.Message> singerRef = songSingerList.keySet().iterator().next();
             Song song = songSingerList.remove(singerRef);
-            getContext().getLog().info("Send PlaybackClient a song {}", song.getTitle());
+            getContext().getLog().info("Send PlaybackClient the song '{}'", song.getTitle());
             msg.replyTo.tell(new PlaybackClient.Play(singerRef, song, this.getContext().getSelf()));
         }
         return this;

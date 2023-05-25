@@ -79,13 +79,13 @@ public class PlaybackClient extends AbstractBehavior<PlaybackClient.Message> {
     }
 
     /*
-    * Das zur Wiedergabeliste hinzugefügtes Lied wird an den Singer geschickt
+    * Das zur Wiedergabeliste hinzugefügte Lied wird an den Singer geschickt
     * und es wird ein Timer gestartet,
     * die Länge des Timers entspricht der Länge des Liedes
     */
     private Behavior<Message> onPlay(Play msg){
         isPlaying = true;
-        msg.replyTo.tell(new Singer.StartSingingMessage(this.getContext().getSelf(), msg.songToPlay)); // TODO: quick fix, must be checked
+        msg.replyTo.tell(new Singer.StartSingingMessage(this.getContext().getSelf(), msg.songToPlay));
         this.timers.startSingleTimer(new SendPlayEnd(msg),
                 Duration.ofSeconds(msg.songToPlay.getDuration()));
 
@@ -105,7 +105,7 @@ public class PlaybackClient extends AbstractBehavior<PlaybackClient.Message> {
      * und eine Ready Nachricht an den QueueManager geschickt
      */
     private Behavior<Message> onSendPlayEnd(SendPlayEnd sendPlayEndMsg){
-        this.getContext().getLog().info("PlaybackClient played " + sendPlayEndMsg.msg.songToPlay.getTitle() + ": Done");
+        this.getContext().getLog().info("PlaybackClient played '{}': Done", sendPlayEndMsg.msg.songToPlay.getTitle());
         isPlaying = false;
         sendPlayEndMsg.msg.msgFrom.tell(new QueueManager.ReadyMessage(getContext().getSelf()));
         return this;

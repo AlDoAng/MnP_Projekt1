@@ -12,7 +12,7 @@ import java.util.List;
  *  Alina Ignatova 226735,
  *  Ha Phuong Ta 230655,
  *  Valeriya Mikhalskaya 229099,
- * //TODO: Janis
+ *  Janis Melon 209928
  */
 
 // AkkaMainSystem: erstellt die Aktoren und startet alles
@@ -41,7 +41,6 @@ public class AkkaMainSystem extends AbstractBehavior<AkkaMainSystem.Create> {
         ActorRef<PlaybackClient.Message> playbackClient = this.getContext().spawn(PlaybackClient.create(), "playbackClient");
         ActorRef<QueueManager.Message> queueManager = this.getContext().spawn(QueueManager.create(playbackClient), "queueManager");
         ActorRef<Spawner.Message> spawner = this.getContext().spawn(Spawner.create(library,queueManager), "spawner");
-
         //#create-actors
         return this;
     }
