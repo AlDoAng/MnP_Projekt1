@@ -12,6 +12,9 @@ import java.util.LinkedHashSet;
 import java.util.Queue;
 import java.util.Random;
 
+/*
+ * Actor: Singer
+ */
 public class Singer extends AbstractBehavior<Singer.Message> {
 
     public interface Message {}
@@ -27,6 +30,9 @@ public class Singer extends AbstractBehavior<Singer.Message> {
     private final ActorRef<Library.Message> libraryActorRef;
     private final ActorRef<QueueManager.Message> queueManagerActorRef;
 
+    /*
+     * Nachdem Singer erstellt wurde, sendet er eine Anfrage nach alle 'Artists' an die Library
+     */
     private Singer(ActorContext<Message> context, ActorRef<Library.Message> library, ActorRef<QueueManager.Message> queueManager) {
         super(context);
         this.libraryActorRef = library;
@@ -44,6 +50,11 @@ public class Singer extends AbstractBehavior<Singer.Message> {
                 .build();
     }
 
+    /*
+     * Nachdem Singer eine Liste aller 'Artists' bekommen hat,
+     * wird ein 'Artists' zufällig ausgewählt und
+     * Lieder vom ausgewählten 'Artists' angefordert
+     */
     private Behavior<Message> onArtistsMessage(ArtistsMessage msg) {
         Random random = new Random(System.currentTimeMillis());
         String choosenArtist = null;
@@ -60,6 +71,11 @@ public class Singer extends AbstractBehavior<Singer.Message> {
         return this;
     }
 
+    /*
+     * Nachdem Singer angeforderte Lieder bekommen hat,
+     * wird ein Lied zufällig ausgewählt und an den
+     * QueueManager gesendet
+     */
     private Behavior<Message> onSongsMessage(SongsMessage msg) {
         Random random = new Random(System.currentTimeMillis());
         Song choosenSong = null;
@@ -76,6 +92,10 @@ public class Singer extends AbstractBehavior<Singer.Message> {
         return this;
     }
 
+    /*
+     * Nachdem Singer eine Nachricht vom PlaybackClient bekommen hat,
+     * gibt er folgenes aus:
+     */
     private Behavior<Message> onStartSingingMessage(StartSingingMessage msg) {
         getContext().getLog().info("Start singing: " + msg.songToSing.getArtist()+
                 " - "+msg.songToSing.getTitle()+" for "+msg.songToSing.getDuration()+" seconds");
