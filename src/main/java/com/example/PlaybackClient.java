@@ -11,16 +11,16 @@ import akka.actor.typed.javadsl.Receive;
 import java.time.Duration;
 import java.util.Objects;
 
-
+/*
+ * Actor: PlaybackClient
+ */
 public class PlaybackClient extends AbstractBehavior<PlaybackClient.Message> {
 
     public interface Message {}
 
     /*
-    * Klasse repräsentiert ein Nachricht, die bei PlaybackClient erhalten wird.
-    * replyTo ist Singer-Objekt, an dem die Nachricht StartSinging geschickt wird
-    * songToPlay ist Song-Objekt, PlaybackClient wartet die so lange, wie die Dauer des Songs ist
-    * msgFrom ist das Objekt (hier QueueManager), das die Play-Nachricht gesendet hat
+    * Die Klasse Play repräsentiert eine Nachricht, die ein Lied enthält und
+    * an den Singer weiter geschickt wird
     */
     public static final class Play implements Message{
         public final ActorRef<Singer.Message> replyTo;
@@ -79,10 +79,9 @@ public class PlaybackClient extends AbstractBehavior<PlaybackClient.Message> {
     }
 
     /*
-    * 1) sende Startsinging-Nachricht an dem Singer-Objekt
-    * 2) warte Dauer des Songs
-    * 3) schreibe Log-Nachricht
-    * 4) sende Ready-Nachricht an dem QueueManager
+    * Das zur Wiedergabeliste hinzugefügtes Lied wird an den Singer geschickt
+    * und es wird ein Timer gestartet,
+    * die Länge des Timers entspricht der Länge des Liedes
     */
     private Behavior<Message> onPlay(Play msg){
         isPlaying = true;
@@ -93,12 +92,18 @@ public class PlaybackClient extends AbstractBehavior<PlaybackClient.Message> {
         return this;
     }
 
+    /*
+     * Die Information über das Lied wird mit dem QueueManager geteilt
+     */
     private Behavior<Message> onIsPlaying(IsPlaying msg){
         msg.replyTo.tell(new QueueManager.ClientIsPlaying(getContext().getSelf(), isPlaying, msg.song, msg.replyToSinger));
         return this;
     }
 
-
+    /*
+     * Nachdem der Timer fertig ist, wird eine Lognachricht ausgegeben
+     * und eine Ready Nachricht an den QueueManager geschickt
+     */
     private Behavior<Message> onSendPlayEnd(SendPlayEnd sendPlayEndMsg){
         this.getContext().getLog().info("PlaybackClient played " + sendPlayEndMsg.msg.songToPlay.getTitle() + ": Done");
         isPlaying = false;
